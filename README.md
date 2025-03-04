@@ -22,6 +22,6 @@
 ## 📦 Installation & Lancement
 
 ```bash
-pnpm install
-pnpm tauri dev
+npm install
+npm tauri dev
 ```
