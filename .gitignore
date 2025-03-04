@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+tauri-build/
+src-tauri/target/
 
 # Editor directories and files
 .vscode/*
