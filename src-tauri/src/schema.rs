@@ -2,27 +2,22 @@
 
 diesel::table! {
     assets (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         symbol -> Text,
         name -> Text,
-        #[sql_name = "type"]
-        type_ -> Text,
+        category -> Text,
     }
 }
 
 diesel::table! {
     transactions (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         asset -> Text,
-        quantity -> Float,
-        price -> Float,
+        quantity -> Double,
+        price -> Double,
         date -> Text,
-        #[sql_name = "type"]
-        type_ -> Text,
+        category -> Text,
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    assets,
-    transactions,
-);
+diesel::allow_tables_to_appear_in_same_query!(assets, transactions,);
