@@ -13,7 +13,7 @@ pub struct Transaction {
     pub category: String, // "crypto" ou "stock"
 }
 
-#[derive(Queryable, Selectable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug)]
 #[diesel(table_name = assets)]
 pub struct Asset {
     pub id: i32,
