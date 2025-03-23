@@ -6,6 +6,7 @@ diesel::table! {
         symbol -> Text,
         name -> Text,
         category -> Text,
+        api_id -> Nullable<Text>,
     }
 }
 

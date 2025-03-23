@@ -19,5 +19,6 @@ pub struct Asset {
     pub id: i32,
     pub symbol: String,
     pub name: String,
-    pub category: String, // "crypto" ou "stock"
+    pub category: String,       // "crypto" ou "stock"
+    pub api_id: Option<String>, // ID de l'API utilisée pour récupérer les données
 }
