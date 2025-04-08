@@ -3,4 +3,5 @@ export interface Asset {
   symbol: string;
   name: string;
   category: string;
+  api_id?: string | null;
 }

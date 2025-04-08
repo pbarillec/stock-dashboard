@@ -22,3 +22,11 @@ pub struct Asset {
     pub category: String,       // "crypto" ou "stock"
     pub api_id: Option<String>, // ID de l'API utilisée pour récupérer les données
 }
+
+#[derive(Deserialize)]
+pub struct NewAsset {
+    pub symbol: String,
+    pub name: String,
+    pub category: String,
+    pub api_id: Option<String>,
+}
