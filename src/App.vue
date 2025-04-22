@@ -7,10 +7,14 @@
       <WidgetPie />
       <WidgetTransactions />
       <WidgetChart />
-      <WidgetAddTransaction />
+      <WidgetAssetList />
+      <AddWidget
+        title="➕ Ajouter une transaction"
+        :component="AddTransaction"
+      />
+      <AddWidget title="➕ Ajouter un actif" :component="AddAsset" />
       <!-- 👈 nouveau widget -->
     </div>
-    <ManageAssets />
   </div>
 </template>
 
@@ -19,6 +23,8 @@ import WidgetPortfolio from "./components/widgets/WidgetPortfolio.vue";
 import WidgetPie from "./components/widgets/WidgetPie.vue";
 import WidgetTransactions from "./components/widgets/WidgetTransactions.vue";
 import WidgetChart from "./components/widgets/WidgetChart.vue";
-import WidgetAddTransaction from "./components/widgets/WidgetAddTransaction.vue";
-import ManageAssets from "./components/ManageAssets.vue";
+import AddWidget from "./components/widgets/AddWidget.vue";
+import AddTransaction from "./components/AddTransaction.vue";
+import AddAsset from "./components/AddAsset.vue";
+import WidgetAssetList from "./components/widgets/WidgetAssetList.vue";
 </script>

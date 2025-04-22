@@ -1,10 +1,15 @@
 <template>
-  <DashboardWidget title="➕ Ajouter une transaction">
-    <AddTransaction />
+  <DashboardWidget :title="title">
+    <component :is="component" />
   </DashboardWidget>
 </template>
 
 <script setup lang="ts">
 import DashboardWidget from "./DashboardWidget.vue";
-import AddTransaction from "../AddTransaction.vue";
+
+defineProps<{
+  title: string;
+  component: any;
+}>();
 </script>
+t
