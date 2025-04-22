@@ -40,5 +40,10 @@ export const useAssetStore = defineStore("assets", () => {
     }
   }
 
-  return { assets, fetchAssets, addAsset, deleteAsset };
+  return {
+    assets,
+    fetchAssets,
+    addAsset,
+    deleteAsset,
+  };
 });

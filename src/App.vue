@@ -7,9 +7,9 @@
       <WidgetPie />
       <WidgetTransactions />
       <WidgetChart />
+      <WidgetAddTransaction />
+      <!-- 👈 nouveau widget -->
     </div>
-
-    <!-- Composant à tester -->
     <ManageAssets />
   </div>
 </template>
@@ -19,6 +19,6 @@ import WidgetPortfolio from "./components/widgets/WidgetPortfolio.vue";
 import WidgetPie from "./components/widgets/WidgetPie.vue";
 import WidgetTransactions from "./components/widgets/WidgetTransactions.vue";
 import WidgetChart from "./components/widgets/WidgetChart.vue";
-import AddTransaction from "./components/AddTransaction.vue"; // 👈 import ici
+import WidgetAddTransaction from "./components/widgets/WidgetAddTransaction.vue";
 import ManageAssets from "./components/ManageAssets.vue";
 </script>

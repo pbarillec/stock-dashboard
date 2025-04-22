@@ -3,10 +3,19 @@
     class="bg-white p-4 rounded-lg shadow-md border border-gray-200 max-w-md mx-auto"
   >
     <h2 class="text-lg font-semibold mb-4">➕ Ajouter une transaction</h2>
-    <form @submit.prevent>
+    <form @submit.prevent="submit">
       <div class="mb-3">
-        <label class="block text-sm font-medium mb-1">Nom de l'actif</label>
-        <input v-model="form.asset" type="text" class="input" required />
+        <label class="block text-sm font-medium mb-1">Actif</label>
+        <select v-model="form.asset" class="input" required>
+          <option disabled value="">-- Choisir un actif --</option>
+          <option
+            v-for="asset in assetStore.assets"
+            :key="asset.id"
+            :value="asset.symbol"
+          >
+            {{ asset.symbol }} - {{ asset.name }}
+          </option>
+        </select>
       </div>
 
       <div class="mb-3">
@@ -57,15 +66,40 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
+import { useTransactionStore } from "../stores/transactions";
+import type { Transaction } from "../models/Transaction";
+import { useAssetStore } from "../stores/assets";
 
-const form = reactive({
+const assetStore = useAssetStore();
+const transactionStore = useTransactionStore();
+
+const form = reactive<Omit<Transaction, "id">>({
   asset: "",
   quantity: 0,
   price: 0,
   date: "",
   category: "crypto",
 });
+
+onMounted(() => {
+  assetStore.fetchAssets();
+});
+
+async function submit() {
+  try {
+    await transactionStore.addTransaction(form);
+
+    // Reset du formulaire
+    form.asset = "";
+    form.quantity = 0;
+    form.price = 0;
+    form.date = "";
+    form.category = "crypto";
+  } catch (error) {
+    console.error("Erreur lors de l'ajout de la transaction :", error);
+  }
+}
 </script>
 
 <style scoped>

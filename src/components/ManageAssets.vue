@@ -53,7 +53,7 @@
         }})
         <button
           @click="assetStore.deleteAsset(asset.id)"
-          class="text-red-600 text-xs hover:underline"
+          class="text-red-600 hover:scale-110 transition"
         >
           ❌
         </button>
@@ -66,7 +66,6 @@
 import { reactive, onMounted } from "vue";
 import { useAssetStore } from "../stores/assets";
 import type { Asset } from "../models/Asset";
-import { invoke } from "@tauri-apps/api/core";
 
 const assetStore = useAssetStore();
 

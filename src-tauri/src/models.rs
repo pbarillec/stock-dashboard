@@ -30,3 +30,12 @@ pub struct NewAsset {
     pub category: String,
     pub api_id: Option<String>,
 }
+
+#[derive(Deserialize)]
+pub struct NewTransaction {
+    pub asset: String,
+    pub quantity: f64,
+    pub price: f64,
+    pub date: String,
+    pub category: String,
+}
