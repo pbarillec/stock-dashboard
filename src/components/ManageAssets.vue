@@ -51,6 +51,12 @@
         <strong>{{ asset.symbol }}</strong> - {{ asset.name }} ({{
           asset.category
         }})
+        <button
+          @click="assetStore.deleteAsset(asset.id)"
+          class="text-red-600 text-xs hover:underline"
+        >
+          ❌
+        </button>
       </li>
     </ul>
   </div>
@@ -78,13 +84,6 @@ onMounted(() => {
 async function submit() {
   try {
     await assetStore.addAsset(form);
-    // await invoke("add_asset", {
-    //   symbol_val: form.symbol,
-    //   name_val: form.name,
-    //   category_val: form.category,
-    //   api_id_val: form.api_id || null,
-    // });
-
     assetStore.fetchAssets(); // 🔄 mettre à jour la liste locale
     form.symbol = "";
     form.name = "";

@@ -32,7 +32,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             fetch_transactions,
             fetch_assets,
-            add_asset
+            add_asset,
+            delete_asset
         ])
         .run(tauri::generate_context!())
         .expect("Erreur lors du lancement de l'application");
@@ -50,6 +51,18 @@ fn add_asset(new_asset: NewAsset) -> Result<(), String> {
             category.eq(new_asset.category),
             api_id.eq(new_asset.api_id),
         ))
+        .execute(&mut conn)
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[command]
+fn delete_asset(asset_id: i32) -> Result<(), String> {
+    use schema::assets::dsl::*;
+    let mut conn = establish_connection();
+
+    diesel::delete(assets.filter(id.eq(asset_id)))
         .execute(&mut conn)
         .map_err(|e| e.to_string())?;
 

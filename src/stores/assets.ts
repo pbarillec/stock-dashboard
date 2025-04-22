@@ -16,12 +16,6 @@ export const useAssetStore = defineStore("assets", () => {
 
   async function addAsset(newAsset: Omit<Asset, "id">) {
     try {
-      // await invoke("add_asset", {
-      //   symbol_val: newAsset.symbol,
-      //   name_val: newAsset.name,
-      //   category_val: newAsset.category,
-      //   api_id_val: newAsset.api_id || null,
-      // });
       await invoke("add_asset", {
         newAsset, // 👈 correspond à la struct Rust NewAsset
       });
@@ -35,5 +29,16 @@ export const useAssetStore = defineStore("assets", () => {
     }
   }
 
-  return { assets, fetchAssets, addAsset };
+  async function deleteAsset(assetId: number) {
+    try {
+      await invoke("delete_asset", {
+        assetId: assetId, // Utilisez assetId au lieu de asset_id
+      });
+      assets.value = assets.value.filter((a) => a.id !== assetId);
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'actif :", error);
+    }
+  }
+
+  return { assets, fetchAssets, addAsset, deleteAsset };
 });
