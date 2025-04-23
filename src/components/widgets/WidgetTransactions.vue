@@ -21,9 +21,20 @@
         :key="transaction.id"
         class="border-b pb-1 text-sm"
       >
-        <strong>{{ transaction.asset }}</strong> - {{ transaction.quantity }} @
-        {{ transaction.price }}€
-        <span class="block text-gray-500 text-xs">{{ transaction.date }}</span>
+        <div class="flex justify-between items-start">
+          <div>
+            <strong>{{ transaction.asset }}</strong> -
+            {{ transaction.quantity }} @ {{ transaction.price }}€
+          </div>
+          <button
+            @click="transactionStore.deleteTransaction(transaction.id)"
+            class="text-red-600 hover:scale-110 transition"
+            title="Supprimer"
+          >
+            ❌
+          </button>
+        </div>
+        <div class="text-gray-500 text-xs mt-1">{{ transaction.date }}</div>
       </li>
     </ul>
   </DashboardWidget>

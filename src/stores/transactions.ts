@@ -31,7 +31,7 @@ export const useTransactionStore = defineStore("transactions", () => {
   async function deleteTransaction(transactionId: number) {
     try {
       await invoke("delete_transaction", {
-        transactionId: transactionId, // Utilisez transactionId au lieu de transaction_id
+        transactionId: transactionId,
       });
       transactions.value = transactions.value.filter(
         (t) => t.id !== transactionId
