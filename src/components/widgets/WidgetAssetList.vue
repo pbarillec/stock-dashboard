@@ -2,7 +2,7 @@
   <DashboardWidget title="📋 Actifs suivis">
     <ul class="text-sm space-y-1">
       <li
-        v-for="asset in assetStore.assets"
+        v-for="asset in assetStore.filteredAssets"
         :key="asset.id"
         class="border-b pb-1 flex justify-between items-center"
       >

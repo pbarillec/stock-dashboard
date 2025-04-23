@@ -50,7 +50,7 @@ const options: (number | "All")[] = [5, 10, "All"];
 const limit = ref<number | "All">(5);
 
 const limitedTransactions = computed(() => {
-  const sorted = [...transactionStore.transactions].sort(
+  const sorted = [...transactionStore.filteredTransactions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 

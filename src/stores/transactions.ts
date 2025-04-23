@@ -1,10 +1,21 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { Transaction } from "../models/Transaction";
+import { useDashboardStore } from "./dashboard";
 
 export const useTransactionStore = defineStore("transactions", () => {
   const transactions = ref<Transaction[]>([]);
+
+  const filteredTransactions = computed(() => {
+    const dashboardStore = useDashboardStore();
+
+    return transactions.value.filter((t) =>
+      dashboardStore.filter === "all"
+        ? true
+        : t.category === dashboardStore.filter
+    );
+  });
 
   async function fetchTransactions() {
     try {
@@ -41,5 +52,11 @@ export const useTransactionStore = defineStore("transactions", () => {
     }
   }
 
-  return { transactions, fetchTransactions, addTransaction, deleteTransaction };
+  return {
+    transactions,
+    filteredTransactions,
+    fetchTransactions,
+    addTransaction,
+    deleteTransaction,
+  };
 });

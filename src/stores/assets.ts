@@ -1,7 +1,8 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { defineStore } from "pinia";
 import { invoke } from "@tauri-apps/api/core";
-import type { Asset } from "../models/Asset";
+import { Asset } from "../models/Asset";
+import { useDashboardStore } from "./dashboard";
 
 export const useAssetStore = defineStore("assets", () => {
   const assets = ref<Asset[]>([]);
@@ -13,6 +14,16 @@ export const useAssetStore = defineStore("assets", () => {
       console.error("Erreur lors de la récupération des actifs :", error);
     }
   }
+
+  const filteredAssets = computed(() => {
+    const dashboardStore = useDashboardStore();
+
+    return assets.value.filter((a) =>
+      dashboardStore.filter === "all"
+        ? true
+        : a.category === dashboardStore.filter
+    );
+  });
 
   async function addAsset(newAsset: Omit<Asset, "id">) {
     try {
@@ -42,6 +53,7 @@ export const useAssetStore = defineStore("assets", () => {
 
   return {
     assets,
+    filteredAssets,
     fetchAssets,
     addAsset,
     deleteAsset,
