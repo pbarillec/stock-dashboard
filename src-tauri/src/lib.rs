@@ -37,7 +37,8 @@ pub fn run() {
             delete_asset,
             add_transaction,
             delete_transaction,
-            search_asset_twelve_data
+            search_crypto_coingecko,
+            get_crypto_price_coingecko
         ])
         .run(tauri::generate_context!())
         .expect("Erreur lors du lancement de l'application");
@@ -105,24 +106,45 @@ fn delete_transaction(transaction_id: i32) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn search_asset_twelve_data(query: String) -> Result<serde_json::Value, String> {
-    let api_key = std::env::var("TWELVE_API_KEY")
-        .map_err(|_| "Clé TWELVE_API_KEY introuvable".to_string())?;
-
+async fn search_crypto_coingecko(query: String) -> Result<serde_json::Value, String> {
     let url = format!(
-        "https://api.twelvedata.com/symbol_search?symbol={}&apikey={}",
-        urlencoding::encode(&query),
-        api_key
+        "https://api.coingecko.com/api/v3/search?query={}",
+        urlencoding::encode(&query)
     );
 
     let response = reqwest::get(&url)
         .await
-        .map_err(|e| format!("Erreur requête: {}", e))?;
+        .map_err(|e| format!("Erreur requête CoinGecko: {}", e))?;
 
     let json: serde_json::Value = response
         .json()
         .await
-        .map_err(|e| format!("Erreur JSON: {}", e))?;
+        .map_err(|e| format!("Erreur JSON CoinGecko: {}", e))?;
 
     Ok(json)
+}
+
+#[tauri::command]
+async fn get_crypto_price_coingecko(crypto_id: String) -> Result<f64, String> {
+    let url = format!(
+        "https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies=eur",
+        urlencoding::encode(&crypto_id)
+    );
+
+    let response = reqwest::get(&url)
+        .await
+        .map_err(|e| format!("Erreur requête CoinGecko: {}", e))?;
+
+    let json: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|e| format!("Erreur JSON CoinGecko: {}", e))?;
+
+    let price = json
+        .get(&crypto_id)
+        .and_then(|c| c.get("eur"))
+        .and_then(|p| p.as_f64())
+        .ok_or("Prix non trouvé".to_string())?;
+
+    Ok(price)
 }

@@ -19,7 +19,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-8">
       <WidgetPortfolio />
       <WidgetPie />
-      <WidgetSearchAsset />
+      <WidgetSearchCrypto />
       <WidgetTransactions />
       <WidgetChart />
       <WidgetAssetList />
@@ -27,6 +27,7 @@
         title="➕ Ajouter une transaction"
         :component="AddTransaction"
       />
+
       <AddWidget title="➕ Ajouter un actif" :component="AddAsset" />
       <!-- 👈 nouveau widget -->
     </div>
@@ -43,6 +44,6 @@ import AddTransaction from "./components/AddTransaction.vue";
 import AddAsset from "./components/AddAsset.vue";
 import WidgetAssetList from "./components/widgets/WidgetAssetList.vue";
 import { FilterMode, useDashboardStore } from "./stores/dashboard";
-import WidgetSearchAsset from "./components/widgets/WidgetSearchAsset.vue";
+import WidgetSearchCrypto from "./components/widgets/WidgetSearchCrypto.vue";
 const dashboardStore = useDashboardStore();
 </script>
