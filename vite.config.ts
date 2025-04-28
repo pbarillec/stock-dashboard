@@ -29,4 +29,9 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  resolve: {
+    alias: {
+      "@": new URL("./src", import.meta.url).pathname, // 👈 Utilise URL ici !
+    },
+  },
 }));

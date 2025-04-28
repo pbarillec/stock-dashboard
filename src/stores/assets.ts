@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { invoke } from "@tauri-apps/api/core";
 import { Asset } from "../models/Asset";
 import { useDashboardStore } from "./dashboard";
+import { fetchAssets, addAsset, deleteAsset } from "@/api";
 
 export const useAssetStore = defineStore("assets", () => {
   const assets = ref<Asset[]>([]);
@@ -10,6 +11,7 @@ export const useAssetStore = defineStore("assets", () => {
   async function fetchAssets() {
     try {
       assets.value = await invoke<Asset[]>("fetch_assets");
+      // assets.value = await fetchAssets(); // Si vous utilisez une API externe
     } catch (error) {
       console.error("Erreur lors de la récupération des actifs :", error);
     }
