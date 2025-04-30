@@ -3,6 +3,11 @@ import { ref, computed } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { Transaction } from "../models/Transaction";
 import { useDashboardStore } from "./dashboard";
+import {
+  fetchTransactions as fetchTransactionsApi,
+  addTransaction as addTransactionApi,
+  deleteTransaction as deleteTransactionApi,
+} from "@/api";
 
 export const useTransactionStore = defineStore("transactions", () => {
   const transactions = ref<Transaction[]>([]);
@@ -19,7 +24,7 @@ export const useTransactionStore = defineStore("transactions", () => {
 
   async function fetchTransactions() {
     try {
-      transactions.value = await invoke<Transaction[]>("fetch_transactions");
+      transactions.value = await fetchTransactionsApi();
     } catch (error) {
       console.error("Erreur lors de la récupération des transactions :", error);
     }
@@ -27,13 +32,8 @@ export const useTransactionStore = defineStore("transactions", () => {
 
   async function addTransaction(newTx: Omit<Transaction, "id">) {
     try {
-      await invoke("add_transaction", {
-        newTx,
-      });
-      transactions.value.push({
-        id: Date.now(), // ID temporaire simulé
-        ...newTx,
-      });
+      const inserted = await addTransactionApi(newTx);
+      transactions.value.push(inserted);
     } catch (error) {
       console.error("Erreur lors de l'ajout de la transaction :", error);
     }
@@ -41,9 +41,7 @@ export const useTransactionStore = defineStore("transactions", () => {
 
   async function deleteTransaction(transactionId: number) {
     try {
-      await invoke("delete_transaction", {
-        transactionId: transactionId,
-      });
+      await deleteTransactionApi(transactionId); // Appel à l'API pour supprimer une transaction
       transactions.value = transactions.value.filter(
         (t) => t.id !== transactionId
       );

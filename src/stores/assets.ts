@@ -3,15 +3,18 @@ import { defineStore } from "pinia";
 import { invoke } from "@tauri-apps/api/core";
 import { Asset } from "../models/Asset";
 import { useDashboardStore } from "./dashboard";
-import { fetchAssets, addAsset, deleteAsset } from "@/api";
+import {
+  fetchAssets as fetchAssetsApi,
+  addAsset as addAssetApi,
+  deleteAsset as deleteAssetApi,
+} from "@/api";
 
 export const useAssetStore = defineStore("assets", () => {
   const assets = ref<Asset[]>([]);
 
   async function fetchAssets() {
     try {
-      assets.value = await invoke<Asset[]>("fetch_assets");
-      // assets.value = await fetchAssets(); // Si vous utilisez une API externe
+      assets.value = await fetchAssetsApi();
     } catch (error) {
       console.error("Erreur lors de la récupération des actifs :", error);
     }
@@ -29,14 +32,8 @@ export const useAssetStore = defineStore("assets", () => {
 
   async function addAsset(newAsset: Omit<Asset, "id">) {
     try {
-      await invoke("add_asset", {
-        newAsset, // 👈 correspond à la struct Rust NewAsset
-      });
-      // Ajouter localement dans le store (id simulé temporairement si besoin)
-      assets.value.push({
-        id: Date.now(), // id fictif (à remplacer si retour backend un jour)
-        ...newAsset,
-      });
+      const inserted = await addAssetApi(newAsset);
+      assets.value.push(inserted);
     } catch (error) {
       console.error("Erreur lors de l'ajout de l'actif :", error);
     }
@@ -44,9 +41,7 @@ export const useAssetStore = defineStore("assets", () => {
 
   async function deleteAsset(assetId: number) {
     try {
-      await invoke("delete_asset", {
-        assetId: assetId, // Utilisez assetId au lieu de asset_id
-      });
+      await deleteAssetApi(assetId); // Appel à l'API pour supprimer l'actif
       assets.value = assets.value.filter((a) => a.id !== assetId);
     } catch (error) {
       console.error("Erreur lors de la suppression de l'actif :", error);

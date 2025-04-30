@@ -7,12 +7,12 @@ export async function fetchAssets(): Promise<Asset[]> {
   return await invoke("fetch_assets");
 }
 
-export async function addAsset(newAsset: Omit<Asset, "id">): Promise<void> {
-  await invoke("add_asset", { newAsset });
+export async function addAsset(newAsset: Omit<Asset, "id">): Promise<Asset> {
+  return await invoke("add_asset", { newAsset });
 }
 
 export async function deleteAsset(assetId: number): Promise<void> {
-  await invoke("delete_asset", { assetId });
+  await invoke("delete_asset", { assetId: assetId });
 }
 
 // 🚀 Gestion des Transactions
@@ -22,12 +22,12 @@ export async function fetchTransactions(): Promise<Transaction[]> {
 
 export async function addTransaction(
   newTx: Omit<Transaction, "id">
-): Promise<void> {
-  await invoke("add_transaction", { newTx });
+): Promise<Transaction> {
+  return await invoke("add_transaction", { newTx });
 }
 
 export async function deleteTransaction(transactionId: number): Promise<void> {
-  await invoke("delete_transaction", { transactionId });
+  await invoke("delete_transaction", { transactionId: transactionId });
 }
 
 // 🚀 CoinGecko API
