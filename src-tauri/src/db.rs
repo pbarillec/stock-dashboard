@@ -49,7 +49,7 @@ pub fn add_asset(new_asset: NewAsset) -> Result<Asset, String> {
 
     #[derive(QueryableByName)]
     struct LastInsertRowId {
-        #[sql_type = "Integer"]
+        #[diesel(sql_type = Integer)]
         #[diesel(column_name = "last_insert_rowid()")]
         value: i32,
     }
@@ -101,7 +101,7 @@ pub fn add_transaction(new_tx: NewTransaction) -> Result<Transaction, String> {
     // Récupération de l'ID inséré
     #[derive(diesel::QueryableByName)]
     struct LastInsertRowId {
-        #[sql_type = "Integer"]
+        #[diesel(sql_type = Integer)]
         #[diesel(column_name = "last_insert_rowid()")]
         value: i32,
     }

@@ -20,8 +20,10 @@
       <WidgetPortfolio />
       <WidgetPie />
       <WidgetSearchCrypto />
+
       <WidgetTransactions />
       <WidgetChart />
+      <WidgetSearchStock />
       <WidgetAssetList />
       <AddWidget
         title="➕ Ajouter une transaction"
@@ -45,5 +47,6 @@ import AddAsset from "./components/AddAsset.vue";
 import WidgetAssetList from "./components/widgets/WidgetAssetList.vue";
 import { FilterMode, useDashboardStore } from "./stores/dashboard";
 import WidgetSearchCrypto from "./components/widgets/WidgetSearchCrypto.vue";
+import WidgetSearchStock from "./components/widgets/WidgetSearchStock.vue";
 const dashboardStore = useDashboardStore();
 </script>

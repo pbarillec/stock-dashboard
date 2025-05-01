@@ -45,3 +45,54 @@ pub async fn get_crypto_price_coingecko(crypto_id: String) -> Result<f64, String
 
     Ok(price)
 }
+
+#[tauri::command]
+pub async fn search_stock_yahoo(query: String) -> Result<serde_json::Value, String> {
+    let url = format!(
+        "https://query1.finance.yahoo.com/v1/finance/search?q={}",
+        urlencoding::encode(&query)
+    );
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&url)
+        .header("User-Agent", "Mozilla/5.0")
+        .send()
+        .await
+        .map_err(|e| format!("Erreur requête Yahoo Search: {}", e))?;
+
+    let json: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|e| format!("Erreur JSON Yahoo Search: {}", e))?;
+
+    Ok(json)
+}
+
+#[tauri::command]
+pub async fn get_stock_price_yahoo(stock_id: String) -> Result<f64, String> {
+    let url = format!(
+        "https://query1.finance.yahoo.com/v8/finance/chart/{}",
+        urlencoding::encode(&stock_id)
+    );
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&url)
+        .header("User-Agent", "Mozilla/5.0")
+        .send()
+        .await
+        .map_err(|e| format!("Erreur requête Yahoo Search: {}", e))?;
+
+    let json: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|e| format!("Erreur JSON Yahoo Finance: {}", e))?;
+
+    // Extraire le prix actuel
+    let price = json["chart"]["result"][0]["meta"]["regularMarketPrice"]
+        .as_f64()
+        .ok_or("Prix non trouvé dans la réponse Yahoo")?;
+
+    Ok(price)
+}

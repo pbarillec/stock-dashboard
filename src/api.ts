@@ -41,3 +41,13 @@ export async function searchCrypto(query: string): Promise<any[]> {
 export async function getCryptoPrice(cryptoId: string): Promise<number> {
   return await invoke<number>("get_crypto_price_coingecko", { cryptoId });
 }
+
+// 🚀 Yahoo Finance API
+export async function searchStock(query: string): Promise<any[]> {
+  const res = await invoke<{ quotes: any[] }>("search_stock_yahoo", { query });
+  return res.quotes || [];
+}
+
+export async function getStockPrice(stockId: string): Promise<number> {
+  return await invoke<number>("get_stock_price_yahoo", { stockId });
+}

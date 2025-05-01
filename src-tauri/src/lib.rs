@@ -21,7 +21,9 @@ pub fn run() {
             add_transaction,
             delete_transaction,
             search_crypto_coingecko,
-            get_crypto_price_coingecko
+            get_crypto_price_coingecko,
+            search_stock_yahoo,
+            get_stock_price_yahoo
         ])
         .run(tauri::generate_context!())
         .expect("Erreur lors du lancement de l'application");

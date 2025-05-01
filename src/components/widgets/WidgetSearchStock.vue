@@ -1,11 +1,11 @@
 <template>
-  <DashboardWidget title="🔍 Rechercher une cryptomonnaie (CoinGecko)">
+  <DashboardWidget title="🔍 Rechercher une action, un etf (YahooFinance)">
     <form @submit.prevent="search" class="flex gap-2 mb-4">
       <input
         v-model="query"
         type="text"
         class="input flex-1"
-        placeholder="Ex: Bitcoin, Ethereum, Solana..."
+        placeholder="Ex: Air Liquide, Msci World, Total..."
       />
       <button
         type="submit"
@@ -22,17 +22,20 @@
       <li
         v-for="(result, index) in results"
         :key="index"
-        class="border rounded p-2 bg-white shadow-sm flex justify-between items-center"
-        @click="selectCrypto(result)"
+        class="border rounded p-2 bg-white shadow-sm flex justify-between items-center text-sm"
+        @click="selectStock(result)"
       >
         <div>
-          <strong>{{ result.name }}</strong>
+          <strong>{{
+            result.shortname || result.longname || result.symbol
+          }}</strong>
           <div class="text-xs text-gray-500">
-            {{ result.symbol.toUpperCase() }}
+            Symbol : {{ result.symbol }} • Exchange : {{ result.exchange }} •
+            Type : {{ result.quoteType }}
           </div>
         </div>
         <button
-          @click.stop="copyToClipboard(result.id)"
+          @click.stop="copyToClipboard(result.symbol)"
           class="text-xs text-blue-600 hover:underline"
         >
           Copier ID
@@ -54,25 +57,17 @@
         >
           ✖
         </button>
-
-        <div class="flex items-center gap-3 mb-4">
-          <img
-            v-if="selected.thumb"
-            :src="selected.thumb"
-            alt="Logo"
-            class="w-10 h-10 rounded-full"
-          />
-          <h3 class="text-lg font-semibold">{{ selected.name }}</h3>
-        </div>
-
+        <h3 class="text-lg font-semibold mb-2">
+          {{ selected.shortname || selected.longname || selected.symbol }}
+        </h3>
         <p class="text-sm text-gray-600 mb-2">
-          <strong>Symbol :</strong> {{ selected.symbol.toUpperCase() }}<br />
-          <strong>ID CoinGecko :</strong> <code>{{ selected.id }}</code
-          ><br />
+          <strong>Symbol :</strong> {{ selected.symbol }}<br />
+          <strong>Exchange :</strong> {{ selected.exchange }}<br />
+          <strong>Type :</strong> {{ selected.quoteType }}<br />
           <span v-if="selected.price !== null">
-            <strong>Prix :</strong> {{ selected.price }} €
+            <strong>Prix actuel :</strong> {{ selected.price }} €
           </span>
-          <span v-else class="text-gray-400 italic"> Prix indisponible </span>
+          <span v-else class="text-gray-400 italic"> Prix non chargé </span>
         </p>
       </div>
     </div>
@@ -80,7 +75,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { searchCrypto, getCryptoPrice } from "@/api";
+import { searchStock, getStockPrice } from "@/api";
 import DashboardWidget from "./DashboardWidget.vue";
 
 const query = ref("");
@@ -96,30 +91,34 @@ async function search() {
   if (!query.value.trim()) return;
 
   try {
-    const res = await searchCrypto(query.value);
+    console.log("Recherche de cryptomonnaies avec CoinGecko :", query.value);
+
+    const res = await searchStock(query.value);
+    console.log("Résultats de la recherche CoinGecko :", res);
+
     results.value = res;
     searched.value = true;
   } catch (error) {
-    console.error("Erreur lors de la recherche CoinGecko :", error);
+    console.error("Erreur lors de la recherche YahooFinance :", error);
   }
 }
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text).then(() => {
-    console.log("ID CoinGecko copié :", text);
+    console.log("ID YahooFinance copié :", text);
   });
 }
 
-async function selectCrypto(crypto: any) {
-  selected.value = { ...crypto, price: null };
+async function selectStock(stock: any) {
+  selected.value = { ...stock, price: null };
 
   try {
-    const price = await getCryptoPrice(crypto.id);
+    const price = await getStockPrice(stock.symbol);
     if (selected.value) {
       selected.value.price = price;
     }
   } catch (error) {
-    console.error("Erreur lors du chargement du prix :", error);
+    console.error("Erreur lors du chargement du prix Yahoo :", error);
   }
 }
 </script>
