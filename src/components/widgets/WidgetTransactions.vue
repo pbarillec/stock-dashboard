@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useTransactionStore } from "../../stores/transactions";
 import DashboardWidget from "./DashboardWidget.vue";
 
@@ -55,9 +55,5 @@ const limitedTransactions = computed(() => {
   );
 
   return limit.value === "All" ? sorted : sorted.slice(0, limit.value);
-});
-
-onMounted(() => {
-  transactionStore.fetchTransactions();
 });
 </script>

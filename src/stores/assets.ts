@@ -1,16 +1,18 @@
 import { ref, computed } from "vue";
 import { defineStore } from "pinia";
-import { invoke } from "@tauri-apps/api/core";
 import { Asset } from "../models/Asset";
 import { useDashboardStore } from "./dashboard";
 import {
   fetchAssets as fetchAssetsApi,
   addAsset as addAssetApi,
   deleteAsset as deleteAssetApi,
+  getCryptoPrice,
+  getStockPrice,
 } from "@/api";
 
 export const useAssetStore = defineStore("assets", () => {
   const assets = ref<Asset[]>([]);
+  const prices = ref<Record<number, number>>({});
 
   async function fetchAssets() {
     try {
@@ -48,11 +50,44 @@ export const useAssetStore = defineStore("assets", () => {
     }
   }
 
+  async function fetchAllPrices() {
+    for (const asset of assets.value) {
+      try {
+        let price = 0;
+        if (asset.category === "crypto") {
+          if (asset.api_id) {
+            price = await getCryptoPrice(asset.api_id);
+          } else {
+            console.error(
+              `L'ID API est manquant ou invalide pour l'actif ${asset.symbol}`
+            );
+          }
+        } else if (asset.category === "stock") {
+          if (asset.api_id) {
+            price = await getStockPrice(asset.api_id);
+          } else {
+            console.error(
+              `L'ID API est manquant ou invalide pour l'actif ${asset.symbol}`
+            );
+          }
+        }
+        prices.value[asset.id] = price;
+      } catch (error) {
+        console.error(
+          `Erreur lors du chargement du prix pour ${asset.symbol}:`,
+          error
+        );
+      }
+    }
+  }
+
   return {
     assets,
+    prices,
     filteredAssets,
     fetchAssets,
     addAsset,
     deleteAsset,
+    fetchAllPrices,
   };
 });

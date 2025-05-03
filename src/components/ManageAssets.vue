@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from "vue";
+import { reactive } from "vue";
 import { useAssetStore } from "../stores/assets";
 import type { Asset } from "../models/Asset";
 
@@ -74,10 +74,6 @@ const form = reactive<Omit<Asset, "id">>({
   name: "",
   category: "crypto",
   api_id: "",
-});
-
-onMounted(() => {
-  assetStore.fetchAssets();
 });
 
 async function submit() {

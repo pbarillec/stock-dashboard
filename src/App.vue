@@ -48,5 +48,18 @@ import WidgetAssetList from "./components/widgets/WidgetAssetList.vue";
 import { FilterMode, useDashboardStore } from "./stores/dashboard";
 import WidgetSearchCrypto from "./components/widgets/WidgetSearchCrypto.vue";
 import WidgetSearchStock from "./components/widgets/WidgetSearchStock.vue";
+import { onMounted } from "vue";
+import { useTransactionStore } from "./stores/transactions";
+import { useAssetStore } from "./stores/assets";
+
+const transactionStore = useTransactionStore();
+const assetStore = useAssetStore();
 const dashboardStore = useDashboardStore();
+
+onMounted(async () => {
+  await assetStore.fetchAssets();
+  await assetStore.fetchAllPrices();
+  await transactionStore.fetchTransactions();
+  await transactionStore.fetchAllPrices(assetStore.assets); // 👈 on passe la liste
+});
 </script>

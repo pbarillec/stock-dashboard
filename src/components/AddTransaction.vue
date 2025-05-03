@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from "vue";
+import { reactive } from "vue";
 import { useTransactionStore } from "../stores/transactions";
 import type { Transaction } from "../models/Transaction";
 import { useAssetStore } from "../stores/assets";
@@ -75,10 +75,6 @@ const form = reactive<Omit<Transaction, "id">>({
   price: 0,
   date: "",
   category: "crypto",
-});
-
-onMounted(() => {
-  assetStore.fetchAssets();
 });
 
 async function submit() {

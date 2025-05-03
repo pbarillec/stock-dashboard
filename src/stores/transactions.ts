@@ -1,16 +1,19 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { invoke } from "@tauri-apps/api/core";
 import { Transaction } from "../models/Transaction";
 import { useDashboardStore } from "./dashboard";
 import {
   fetchTransactions as fetchTransactionsApi,
   addTransaction as addTransactionApi,
   deleteTransaction as deleteTransactionApi,
+  getCryptoPrice,
+  getStockPrice,
 } from "@/api";
+import { Asset } from "@/models/Asset";
 
 export const useTransactionStore = defineStore("transactions", () => {
   const transactions = ref<Transaction[]>([]);
+  const realTimePrices = ref<Record<string, number>>({});
 
   const filteredTransactions = computed(() => {
     const dashboardStore = useDashboardStore();
@@ -50,11 +53,36 @@ export const useTransactionStore = defineStore("transactions", () => {
     }
   }
 
+  async function fetchAllPrices(assets: Asset[]) {
+    for (const asset of assets) {
+      try {
+        let price: number | null = null;
+
+        if (asset.category === "crypto" && asset.api_id) {
+          price = await getCryptoPrice(asset.api_id); // appel à l'api.ts
+        } else if (asset.category === "stock" && asset.api_id) {
+          price = await getStockPrice(asset.api_id); // appel à l'api.ts
+        }
+
+        if (price !== null) {
+          realTimePrices.value[asset.symbol] = price;
+        }
+      } catch (error) {
+        console.error(
+          `Erreur lors de la récupération du prix pour ${asset.symbol}:`,
+          error
+        );
+      }
+    }
+  }
+
   return {
     transactions,
+    realTimePrices,
     filteredTransactions,
     fetchTransactions,
     addTransaction,
     deleteTransaction,
+    fetchAllPrices,
   };
 });

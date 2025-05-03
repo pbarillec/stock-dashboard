@@ -15,12 +15,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted } from "vue";
 import { useAssetStore } from "../stores/assets";
 
 const assetStore = useAssetStore();
-
-onMounted(() => {
-  assetStore.fetchAssets();
-});
 </script>

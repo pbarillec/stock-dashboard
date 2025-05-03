@@ -24,13 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
 import { useAssetStore } from "../../stores/assets";
 import DashboardWidget from "./DashboardWidget.vue";
 
 const assetStore = useAssetStore();
-
-onMounted(() => {
-  assetStore.fetchAssets();
-});
 </script>

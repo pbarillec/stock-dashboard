@@ -21,6 +21,7 @@ import {
 } from "chart.js";
 import DashboardWidget from "./DashboardWidget.vue";
 import { useTransactionStore } from "../../stores/transactions";
+import { useAssetStore } from "../../stores/assets";
 import { useDashboardStore } from "../../stores/dashboard";
 
 ChartJS.register(
@@ -34,22 +35,33 @@ ChartJS.register(
 );
 
 const transactionStore = useTransactionStore();
+const assetStore = useAssetStore();
 const dashboardStore = useDashboardStore();
 
-onMounted(() => {
-  transactionStore.fetchTransactions();
+// ✅ On charge TOUT en même temps
+onMounted(async () => {
+  await transactionStore.fetchTransactions();
+  await assetStore.fetchAssets();
+  await transactionStore.fetchAllPrices(assetStore.assets.value);
 });
 
+// 🔥 Met à jour le graphique avec les prix temps réel
 const chartData = computed(() => {
   const transactions = transactionStore.filteredTransactions;
+  const realTimePrices = transactionStore.realTimePrices;
 
   // Grouper par mois/année → ex: "2025-03"
   const groupedByMonth: Record<string, number> = {};
 
   for (const tx of transactions) {
     const month = tx.date.slice(0, 7); // YYYY-MM
+
+    // On utilise le prix temps réel si dispo, sinon fallback sur le prix d'achat
+    const realTimePrice = realTimePrices[tx.asset] ?? tx.price;
+    const totalValue = tx.quantity * realTimePrice;
+
     if (!groupedByMonth[month]) groupedByMonth[month] = 0;
-    groupedByMonth[month] += tx.quantity * tx.price;
+    groupedByMonth[month] += totalValue;
   }
 
   const sortedMonths = Object.keys(groupedByMonth).sort();
