@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -38,30 +38,17 @@ const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
 const dashboardStore = useDashboardStore();
 
-// ✅ On charge TOUT en même temps
-onMounted(async () => {
-  await transactionStore.fetchTransactions();
-  await assetStore.fetchAssets();
-  await transactionStore.fetchAllPrices(assetStore.assets.value);
-});
-
-// 🔥 Met à jour le graphique avec les prix temps réel
 const chartData = computed(() => {
   const transactions = transactionStore.filteredTransactions;
-  const realTimePrices = transactionStore.realTimePrices;
+  const prices = transactionStore.realTimePrices;
 
   // Grouper par mois/année → ex: "2025-03"
   const groupedByMonth: Record<string, number> = {};
 
   for (const tx of transactions) {
     const month = tx.date.slice(0, 7); // YYYY-MM
-
-    // On utilise le prix temps réel si dispo, sinon fallback sur le prix d'achat
-    const realTimePrice = realTimePrices[tx.asset] ?? tx.price;
-    const totalValue = tx.quantity * realTimePrice;
-
     if (!groupedByMonth[month]) groupedByMonth[month] = 0;
-    groupedByMonth[month] += totalValue;
+    groupedByMonth[month] += tx.quantity * tx.price;
   }
 
   const sortedMonths = Object.keys(groupedByMonth).sort();
@@ -73,6 +60,26 @@ const chartData = computed(() => {
   for (const month of sortedMonths) {
     total += groupedByMonth[month];
     cumulativeData.push(total);
+  }
+
+  // 🔥 Ajouter la valeur actuelle (aujourd'hui)
+  const today = new Date();
+  const todayLabel = today.toISOString().slice(0, 7); // YYYY-MM
+
+  const alreadyIncluded = sortedMonths.includes(todayLabel);
+  let totalActual = 0;
+
+  for (const tx of transactions) {
+    const price = prices[tx.asset] ?? tx.price; // fallback sur prix d'achat
+    totalActual += tx.quantity * price;
+  }
+
+  if (!alreadyIncluded) {
+    sortedMonths.push(todayLabel);
+    cumulativeData.push(totalActual);
+  } else {
+    // Si le mois existe déjà, on peut remplacer la dernière valeur pour avoir la valeur actuelle
+    cumulativeData[cumulativeData.length - 1] = totalActual;
   }
 
   return {
