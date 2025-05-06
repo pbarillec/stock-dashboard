@@ -19,17 +19,20 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-8">
       <WidgetPortfolio />
       <WidgetPie />
-      <WidgetSearchCrypto />
 
+      <WidgetSearchCrypto />
       <WidgetTransactions />
+
       <WidgetChart />
       <WidgetSearchStock />
+
       <WidgetAssetList />
+      <WidgetMyHoldings />
+
       <AddWidget
         title="➕ Ajouter une transaction"
         :component="AddTransaction"
       />
-
       <AddWidget title="➕ Ajouter un actif" :component="AddAsset" />
       <!-- 👈 nouveau widget -->
     </div>
@@ -51,6 +54,7 @@ import WidgetSearchStock from "./components/widgets/WidgetSearchStock.vue";
 import { onMounted } from "vue";
 import { useTransactionStore } from "./stores/transactions";
 import { useAssetStore } from "./stores/assets";
+import WidgetMyHoldings from "./components/widgets/WidgetMyHoldings.vue";
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
