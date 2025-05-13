@@ -1,38 +1,66 @@
 <template>
   <DashboardWidget title="💼 Valeur approximative du portefeuille">
     <div class="text-sm space-y-3">
-      <div>
-        <p><strong>💰 Investi :</strong> {{ investedTotal }} €</p>
-        <p class="text-green-700">Crypto : {{ investedCrypto }} €</p>
-        <p class="text-blue-700">Actions : {{ investedStock }} €</p>
-      </div>
+      <template v-if="filter === 'all'">
+        <div>
+          <p><strong>💰 Investi :</strong> {{ investedTotal }} €</p>
+          <p class="text-green-700">Crypto : {{ investedCrypto }} €</p>
+          <p class="text-blue-700">Actions : {{ investedStock }} €</p>
+        </div>
 
-      <div>
-        <p><strong>📈 Valeur actuelle :</strong> {{ total }} €</p>
-        <p class="text-green-700">Crypto : {{ totalCrypto }} €</p>
-        <p class="text-blue-700">Actions : {{ totalStock }} €</p>
-      </div>
+        <div>
+          <p><strong>📈 Valeur actuelle :</strong> {{ total }} €</p>
+          <p class="text-green-700">Crypto : {{ totalCrypto }} €</p>
+          <p class="text-blue-700">Actions : {{ totalStock }} €</p>
+        </div>
 
-      <div>
-        <p>
-          <strong>📊 Performance :</strong>
-          <span :class="getClass(percentTotal)">
-            {{ formatPercent(percentTotal) }}
-          </span>
-        </p>
-        <p>
-          Crypto :
-          <span :class="getClass(percentCrypto)">
-            {{ formatPercent(percentCrypto) }}
-          </span>
-        </p>
-        <p>
-          Actions :
-          <span :class="getClass(percentStock)">
-            {{ formatPercent(percentStock) }}
-          </span>
-        </p>
-      </div>
+        <div>
+          <p>
+            <strong>📊 Performance :</strong>
+            <span :class="getClass(percentTotal)">
+              {{ formatPercent(percentTotal) }}
+            </span>
+          </p>
+          <p>
+            Crypto :
+            <span :class="getClass(percentCrypto)">
+              {{ formatPercent(percentCrypto) }}
+            </span>
+          </p>
+          <p>
+            Actions :
+            <span :class="getClass(percentStock)">
+              {{ formatPercent(percentStock) }}
+            </span>
+          </p>
+        </div>
+      </template>
+
+      <template v-else-if="filter === 'crypto'">
+        <div>
+          <p><strong>💰 Investi :</strong> {{ investedCrypto }} €</p>
+          <p><strong>📈 Valeur actuelle :</strong> {{ totalCrypto }} €</p>
+          <p>
+            <strong>📊 Performance :</strong>
+            <span :class="getClass(percentCrypto)">
+              {{ formatPercent(percentCrypto) }}
+            </span>
+          </p>
+        </div>
+      </template>
+
+      <template v-else-if="filter === 'stock'">
+        <div>
+          <p><strong>💰 Investi :</strong> {{ investedStock }} €</p>
+          <p><strong>📈 Valeur actuelle :</strong> {{ totalStock }} €</p>
+          <p>
+            <strong>📊 Performance :</strong>
+            <span :class="getClass(percentStock)">
+              {{ formatPercent(percentStock) }}
+            </span>
+          </p>
+        </div>
+      </template>
     </div>
   </DashboardWidget>
 </template>
@@ -41,10 +69,13 @@
 import { computed } from "vue";
 import { useTransactionStore } from "../../stores/transactions";
 import { useAssetStore } from "../../stores/assets";
+import { useDashboardStore } from "../../stores/dashboard";
 import DashboardWidget from "./DashboardWidget.vue";
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
+const dashboardStore = useDashboardStore();
+const filter = computed(() => dashboardStore.filter);
 
 // 💸 Investi (prix d'achat)
 const investedTotal = computed(() => {
@@ -127,9 +158,3 @@ function formatPercent(value: number) {
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
 }
 </script>
-
-<style scoped>
-.input {
-  @apply w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200;
-}
-</style>

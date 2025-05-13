@@ -20,47 +20,44 @@ const transactionStore = useTransactionStore();
 const dashboardStore = useDashboardStore();
 
 const chartData = computed(() => {
+  const filter = dashboardStore.filter;
   let totalCrypto = 0;
   let totalStock = 0;
 
   for (const tx of transactionStore.transactions) {
-    const realTimePrice = transactionStore.realTimePrices[tx.asset];
-    const effectivePrice = realTimePrice ?? tx.price; // fallback si pas de prix live
+    const price = transactionStore.realTimePrices[tx.asset] ?? tx.price;
+    const value = tx.quantity * price;
 
-    const value = tx.quantity * effectivePrice;
-
-    if (tx.category === "crypto") {
-      totalCrypto += value;
-    } else if (tx.category === "stock") {
-      totalStock += value;
-    }
+    if (tx.category === "crypto") totalCrypto += value;
+    if (tx.category === "stock") totalStock += value;
   }
 
-  // 🔎 Gérer le filtre global
-  let labels: string[] = [];
-  let data: number[] = [];
-  let bgColors: string[] = [];
+  const datasets = {
+    all: {
+      labels: ["Crypto", "Actions"],
+      data: [totalCrypto, totalStock],
+      colors: ["#10B981", "#3B82F6"],
+    },
+    crypto: {
+      labels: ["Crypto"],
+      data: [totalCrypto],
+      colors: ["#10B981"],
+    },
+    stock: {
+      labels: ["Actions"],
+      data: [totalStock],
+      colors: ["#3B82F6"],
+    },
+  };
 
-  if (dashboardStore.filter === "crypto") {
-    labels = ["Crypto"];
-    data = [totalCrypto];
-    bgColors = ["#10B981"];
-  } else if (dashboardStore.filter === "stock") {
-    labels = ["Actions"];
-    data = [totalStock];
-    bgColors = ["#3B82F6"];
-  } else {
-    labels = ["Crypto", "Actions"];
-    data = [totalCrypto, totalStock];
-    bgColors = ["#10B981", "#3B82F6"];
-  }
+  const current = datasets[filter] ?? datasets.all;
 
   return {
-    labels,
+    labels: current.labels,
     datasets: [
       {
-        data,
-        backgroundColor: bgColors,
+        data: current.data,
+        backgroundColor: current.colors,
         hoverOffset: 10,
       },
     ],

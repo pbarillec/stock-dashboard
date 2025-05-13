@@ -91,19 +91,21 @@
     </div>
   </DashboardWidget>
 </template>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import DashboardWidget from "./DashboardWidget.vue";
 import { useTransactionStore } from "../../stores/transactions";
 import { useAssetStore } from "../../stores/assets";
+import { useDashboardStore } from "../../stores/dashboard";
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
+const dashboardStore = useDashboardStore();
 
 const selected = ref<any | null>(null);
 
 const heldAssets = computed(() => {
+  const filter = dashboardStore.filter;
   const result: {
     asset: string;
     name: string;
@@ -117,7 +119,9 @@ const heldAssets = computed(() => {
 
   assetStore.assets.forEach((asset) => {
     const relatedTx = transactionStore.transactions.filter(
-      (tx) => tx.asset === asset.symbol
+      (tx) =>
+        tx.asset === asset.symbol &&
+        (filter === "all" || tx.category === filter)
     );
 
     const totalQuantity = relatedTx.reduce((acc, tx) => acc + tx.quantity, 0);
