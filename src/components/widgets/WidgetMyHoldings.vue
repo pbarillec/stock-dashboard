@@ -96,16 +96,16 @@ import { computed, ref } from "vue";
 import DashboardWidget from "./DashboardWidget.vue";
 import { useTransactionStore } from "../../stores/transactions";
 import { useAssetStore } from "../../stores/assets";
-import { useDashboardStore } from "../../stores/dashboard";
+import { useFiltersStore } from "../../stores/filters";
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
-const dashboardStore = useDashboardStore();
+const filtersStore = useFiltersStore();
 
 const selected = ref<any | null>(null);
 
 const heldAssets = computed(() => {
-  const filter = dashboardStore.filter;
+  const filter = filtersStore.viewMode;
   const result: {
     asset: string;
     name: string;

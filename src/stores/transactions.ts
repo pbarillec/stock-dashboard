@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { Transaction } from "../models/Transaction";
-import { useDashboardStore } from "./dashboard";
+import { useFiltersStore } from "./filters";
 import {
   fetchTransactions as fetchTransactionsApi,
   addTransaction as addTransactionApi,
@@ -16,12 +16,12 @@ export const useTransactionStore = defineStore("transactions", () => {
   const realTimePrices = ref<Record<string, number>>({});
 
   const filteredTransactions = computed(() => {
-    const dashboardStore = useDashboardStore();
+    const filtersStore = useFiltersStore();
 
     return transactions.value.filter((t) =>
-      dashboardStore.filter === "all"
+      filtersStore.viewMode === "all"
         ? true
-        : t.category === dashboardStore.filter
+        : t.category === filtersStore.viewMode
     );
   });
 

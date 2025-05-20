@@ -1,7 +1,7 @@
 import { ref, computed } from "vue";
 import { defineStore } from "pinia";
 import { Asset } from "../models/Asset";
-import { useDashboardStore } from "./dashboard";
+import { useFiltersStore } from "./filters";
 import {
   fetchAssets as fetchAssetsApi,
   addAsset as addAssetApi,
@@ -23,12 +23,12 @@ export const useAssetStore = defineStore("assets", () => {
   }
 
   const filteredAssets = computed(() => {
-    const dashboardStore = useDashboardStore();
+    const filtersStore = useFiltersStore();
 
     return assets.value.filter((a) =>
-      dashboardStore.filter === "all"
+      filtersStore.viewMode === "all"
         ? true
-        : a.category === dashboardStore.filter
+        : a.category === filtersStore.viewMode
     );
   });
 

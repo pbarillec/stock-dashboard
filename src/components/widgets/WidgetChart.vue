@@ -22,7 +22,7 @@ import {
 import DashboardWidget from "./DashboardWidget.vue";
 import { useTransactionStore } from "../../stores/transactions";
 import { useAssetStore } from "../../stores/assets";
-import { useDashboardStore } from "../../stores/dashboard";
+import { useFiltersStore } from "../../stores/filters";
 
 ChartJS.register(
   Title,
@@ -36,50 +36,68 @@ ChartJS.register(
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
-const dashboardStore = useDashboardStore();
+const filtersStore = useFiltersStore();
+
+const viewMode = computed(() => filtersStore.viewMode);
+const performanceMode = computed(() => filtersStore.performanceMode);
 
 const chartData = computed(() => {
   const transactions = transactionStore.filteredTransactions;
   const prices = transactionStore.realTimePrices;
 
-  // Grouper par mois/année → ex: "2025-03"
-  const groupedByMonth: Record<string, number> = {};
+  const groupedByMonth: Record<string, { invested: number; value: number }> =
+    {};
 
   for (const tx of transactions) {
     const month = tx.date.slice(0, 7); // YYYY-MM
-    if (!groupedByMonth[month]) groupedByMonth[month] = 0;
-    groupedByMonth[month] += tx.quantity * tx.price;
+    const price = prices[tx.asset] ?? tx.price;
+
+    if (!groupedByMonth[month]) {
+      groupedByMonth[month] = { invested: 0, value: 0 };
+    }
+
+    groupedByMonth[month].invested += tx.quantity * tx.price;
+    groupedByMonth[month].value += tx.quantity * price;
   }
 
   const sortedMonths = Object.keys(groupedByMonth).sort();
-
-  // Construire les cumuls
-  const cumulativeData: number[] = [];
-  let total = 0;
+  const dataPoints: number[] = [];
+  let cumulativeInvested = 0;
+  let cumulativeValue = 0;
 
   for (const month of sortedMonths) {
-    total += groupedByMonth[month];
-    cumulativeData.push(total);
+    cumulativeInvested += groupedByMonth[month].invested;
+    cumulativeValue += groupedByMonth[month].value;
+
+    const value =
+      performanceMode.value === "net"
+        ? cumulativeValue - cumulativeInvested
+        : cumulativeValue;
+
+    dataPoints.push(Number(value.toFixed(2)));
   }
 
-  // 🔥 Ajouter la valeur actuelle (aujourd'hui)
-  const today = new Date();
-  const todayLabel = today.toISOString().slice(0, 7); // YYYY-MM
+  // Ajout du mois actuel s’il n’est pas présent
+  const today = new Date().toISOString().slice(0, 7);
+  if (!sortedMonths.includes(today)) {
+    const totalCurrentValue = transactions.reduce((acc, tx) => {
+      const price = prices[tx.asset] ?? tx.price;
+      return acc + tx.quantity * price;
+    }, 0);
 
-  const alreadyIncluded = sortedMonths.includes(todayLabel);
-  let totalActual = 0;
+    const totalInvested = transactions.reduce(
+      (acc, tx) => acc + tx.quantity * tx.price,
+      0
+    );
 
-  for (const tx of transactions) {
-    const price = prices[tx.asset] ?? tx.price; // fallback sur prix d'achat
-    totalActual += tx.quantity * price;
-  }
+    sortedMonths.push(today);
 
-  if (!alreadyIncluded) {
-    sortedMonths.push(todayLabel);
-    cumulativeData.push(totalActual);
-  } else {
-    // Si le mois existe déjà, on peut remplacer la dernière valeur pour avoir la valeur actuelle
-    cumulativeData[cumulativeData.length - 1] = totalActual;
+    const finalValue =
+      performanceMode.value === "net"
+        ? totalCurrentValue - totalInvested
+        : totalCurrentValue;
+
+    dataPoints.push(Number(finalValue.toFixed(2)));
   }
 
   return {
@@ -87,12 +105,14 @@ const chartData = computed(() => {
     datasets: [
       {
         label:
-          dashboardStore.filter === "all"
-            ? "Évolution portefeuille (€)"
-            : `Évolution ${
-                dashboardStore.filter === "crypto" ? "Crypto" : "Actions"
+          viewMode.value === "all"
+            ? performanceMode.value === "net"
+              ? "Performance cumulée (€)"
+              : "Valeur cumulée (€)"
+            : `${performanceMode.value === "net" ? "Performance" : "Valeur"} ${
+                viewMode.value === "crypto" ? "Crypto" : "Actions"
               }`,
-        data: cumulativeData,
+        data: dataPoints,
         borderColor: "#3B82F6",
         backgroundColor: "rgba(59, 130, 246, 0.2)",
         tension: 0.3,

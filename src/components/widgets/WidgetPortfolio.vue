@@ -1,43 +1,79 @@
 <template>
   <DashboardWidget title="💼 Valeur approximative du portefeuille">
     <div class="text-sm space-y-3">
+      <!-- Mode Tous -->
       <template v-if="filter === 'all'">
-        <div>
-          <p><strong>💰 Investi :</strong> {{ investedTotal }} €</p>
-          <p class="text-green-700">Crypto : {{ investedCrypto }} €</p>
-          <p class="text-blue-700">Actions : {{ investedStock }} €</p>
-        </div>
+        <template v-if="performanceMode === 'net'">
+          <div>
+            <p>
+              <strong>📊 Performance :</strong>
+              <span :class="getClass(percentTotal)">
+                {{ formatPercent(percentTotal) }}
+              </span>
+            </p>
+            <p>
+              Crypto :
+              <span :class="getClass(percentCrypto)">
+                {{ formatPercent(percentCrypto) }}
+              </span>
+            </p>
+            <p>
+              Actions :
+              <span :class="getClass(percentStock)">
+                {{ formatPercent(percentStock) }}
+              </span>
+            </p>
+          </div>
+        </template>
 
-        <div>
-          <p><strong>📈 Valeur actuelle :</strong> {{ total }} €</p>
-          <p class="text-green-700">Crypto : {{ totalCrypto }} €</p>
-          <p class="text-blue-700">Actions : {{ totalStock }} €</p>
-        </div>
+        <template v-else>
+          <div>
+            <p><strong>💰 Investi :</strong> {{ investedTotal }} €</p>
+            <p class="text-green-700">Crypto : {{ investedCrypto }} €</p>
+            <p class="text-blue-700">Actions : {{ investedStock }} €</p>
+          </div>
 
-        <div>
+          <div>
+            <p><strong>📈 Valeur actuelle :</strong> {{ total }} €</p>
+            <p class="text-green-700">Crypto : {{ totalCrypto }} €</p>
+            <p class="text-blue-700">Actions : {{ totalStock }} €</p>
+          </div>
+
+          <div>
+            <p>
+              <strong>📊 Performance :</strong>
+              <span :class="getClass(percentTotal)">
+                {{ formatPercent(percentTotal) }}
+              </span>
+            </p>
+            <p>
+              Crypto :
+              <span :class="getClass(percentCrypto)">
+                {{ formatPercent(percentCrypto) }}
+              </span>
+            </p>
+            <p>
+              Actions :
+              <span :class="getClass(percentStock)">
+                {{ formatPercent(percentStock) }}
+              </span>
+            </p>
+          </div>
+        </template>
+      </template>
+
+      <!-- Mode Crypto uniquement -->
+      <template v-else-if="filter === 'crypto'">
+        <template v-if="performanceMode === 'net'">
           <p>
             <strong>📊 Performance :</strong>
-            <span :class="getClass(percentTotal)">
-              {{ formatPercent(percentTotal) }}
-            </span>
-          </p>
-          <p>
-            Crypto :
             <span :class="getClass(percentCrypto)">
               {{ formatPercent(percentCrypto) }}
             </span>
           </p>
-          <p>
-            Actions :
-            <span :class="getClass(percentStock)">
-              {{ formatPercent(percentStock) }}
-            </span>
-          </p>
-        </div>
-      </template>
+        </template>
 
-      <template v-else-if="filter === 'crypto'">
-        <div>
+        <template v-else>
           <p><strong>💰 Investi :</strong> {{ investedCrypto }} €</p>
           <p><strong>📈 Valeur actuelle :</strong> {{ totalCrypto }} €</p>
           <p>
@@ -46,11 +82,21 @@
               {{ formatPercent(percentCrypto) }}
             </span>
           </p>
-        </div>
+        </template>
       </template>
 
+      <!-- Mode Actions uniquement -->
       <template v-else-if="filter === 'stock'">
-        <div>
+        <template v-if="performanceMode === 'net'">
+          <p>
+            <strong>📊 Performance :</strong>
+            <span :class="getClass(percentStock)">
+              {{ formatPercent(percentStock) }}
+            </span>
+          </p>
+        </template>
+
+        <template v-else>
           <p><strong>💰 Investi :</strong> {{ investedStock }} €</p>
           <p><strong>📈 Valeur actuelle :</strong> {{ totalStock }} €</p>
           <p>
@@ -59,7 +105,7 @@
               {{ formatPercent(percentStock) }}
             </span>
           </p>
-        </div>
+        </template>
       </template>
     </div>
   </DashboardWidget>
@@ -69,13 +115,15 @@
 import { computed } from "vue";
 import { useTransactionStore } from "../../stores/transactions";
 import { useAssetStore } from "../../stores/assets";
-import { useDashboardStore } from "../../stores/dashboard";
+import { useFiltersStore } from "../../stores/filters";
 import DashboardWidget from "./DashboardWidget.vue";
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
-const dashboardStore = useDashboardStore();
-const filter = computed(() => dashboardStore.filter);
+const filtersStore = useFiltersStore();
+
+const filter = computed(() => filtersStore.viewMode);
+const performanceMode = computed(() => filtersStore.performanceMode);
 
 // 💸 Investi (prix d'achat)
 const investedTotal = computed(() => {
