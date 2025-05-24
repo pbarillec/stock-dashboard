@@ -51,3 +51,42 @@ export async function searchStock(query: string): Promise<any[]> {
 export async function getStockPrice(stockId: string): Promise<number> {
   return await invoke<number>("get_stock_price_yahoo", { stockId });
 }
+
+// 🚀 Calcul historique de la valeur du portefeuille
+export async function getHistoricalValueAtDate(
+  date: string,
+  assets: Asset[],
+  transactions: Transaction[]
+): Promise<number> {
+  let total = 0;
+
+  for (const asset of assets) {
+    // Quantité détenue à cette date
+    const quantityHeld = transactions
+      .filter((tx) => tx.asset === asset.symbol && tx.date <= date)
+      .reduce((sum, tx) => sum + tx.quantity, 0);
+
+    if (quantityHeld === 0) continue;
+
+    // Récupération du prix à cette date
+    let historicalPrice: number | null = null;
+
+    if (asset.category === "crypto" && asset.api_id) {
+      historicalPrice = await invoke<number>(
+        "get_crypto_price_on_date_coingecko",
+        { cryptoId: asset.api_id, date }
+      );
+    } else if (asset.category === "stock" && asset.api_id) {
+      historicalPrice = await invoke<number>("get_stock_price_on_date_yahoo", {
+        stockId: asset.api_id,
+        date,
+      });
+    }
+
+    if (historicalPrice !== null) {
+      total += quantityHeld * historicalPrice;
+    }
+  }
+
+  return Number(total.toFixed(2));
+}

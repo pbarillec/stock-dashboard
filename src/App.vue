@@ -1,8 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-100 text-gray-900 font-sans p-6">
     <h1 class="text-4xl font-bold text-center mb-6">📊 Stock Dashboard</h1>
-    <GlobalViewFilters />
-
+    <div class="space-y-4 mb-6">
+      <GlobalViewFilters />
+      <TimeRangeFilter />
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-8">
       <WidgetPortfolio />
       <WidgetPie />
@@ -42,6 +44,7 @@ import { useTransactionStore } from "./stores/transactions";
 import { useAssetStore } from "./stores/assets";
 import WidgetMyHoldings from "./components/widgets/WidgetMyHoldings.vue";
 import GlobalViewFilters from "./components/GlobalViewFilters.vue";
+import TimeRangeFilter from "./components/TimeRangeFilter.vue";
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();

@@ -73,20 +73,59 @@
 import { ref, computed } from "vue";
 import { useTransactionStore } from "../../stores/transactions";
 import { useAssetStore } from "../../stores/assets";
+import { useFiltersStore } from "../../stores/filters";
 import DashboardWidget from "./DashboardWidget.vue";
 
 const transactionStore = useTransactionStore();
 const assetStore = useAssetStore();
+const filtersStore = useFiltersStore();
+
 const options: (number | "All")[] = [5, 10, "All"];
 const limit = ref<number | "All">(5);
-
 const selected = ref<any | null>(null);
 
+function isDateInRange(dateStr: string): boolean {
+  const range = filtersStore.timeRange;
+  const now = new Date();
+  const date = new Date(dateStr);
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+
+  let result = true;
+
+  switch (range) {
+    case "1d":
+      result = now.getTime() - date.getTime() <= 24 * 60 * 60 * 1000;
+      break;
+    case "7d":
+      result = now.getTime() - date.getTime() <= 7 * 24 * 60 * 60 * 1000;
+      break;
+    case "1m":
+      result = now.getTime() - date.getTime() <= 30 * 24 * 60 * 60 * 1000;
+      break;
+    case "1y":
+      result = now.getTime() - date.getTime() <= 365 * 24 * 60 * 60 * 1000;
+      break;
+    case "ytd":
+      result = date >= yearStart;
+      break;
+    case "all":
+    default:
+      result = true;
+  }
+
+  return result;
+}
+
+const filteredAndSortedTransactions = computed(() => {
+  return [...transactionStore.filteredTransactions]
+    .filter((tx) => isDateInRange(tx.date))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+});
+
 const limitedTransactions = computed(() => {
-  const sorted = [...transactionStore.filteredTransactions].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-  return limit.value === "All" ? sorted : sorted.slice(0, limit.value);
+  return limit.value === "All"
+    ? filteredAndSortedTransactions.value
+    : filteredAndSortedTransactions.value.slice(0, limit.value);
 });
 
 function getAssetName(symbol: string): string {

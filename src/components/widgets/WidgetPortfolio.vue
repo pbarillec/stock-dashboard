@@ -62,7 +62,7 @@
         </template>
       </template>
 
-      <!-- Mode Crypto uniquement -->
+      <!-- Crypto uniquement -->
       <template v-else-if="filter === 'crypto'">
         <template v-if="performanceMode === 'net'">
           <p>
@@ -85,7 +85,7 @@
         </template>
       </template>
 
-      <!-- Mode Actions uniquement -->
+      <!-- Actions uniquement -->
       <template v-else-if="filter === 'stock'">
         <template v-if="performanceMode === 'net'">
           <p>
@@ -124,23 +124,51 @@ const filtersStore = useFiltersStore();
 
 const filter = computed(() => filtersStore.viewMode);
 const performanceMode = computed(() => filtersStore.performanceMode);
+const timeRange = computed(() => filtersStore.timeRange);
+
+function isDateInRange(dateStr: string): boolean {
+  if (timeRange.value === "all") return true;
+
+  const now = new Date();
+  const date = new Date(dateStr);
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+
+  switch (timeRange.value) {
+    case "1d":
+      return now.getTime() - date.getTime() <= 24 * 60 * 60 * 1000;
+    case "7d":
+      return now.getTime() - date.getTime() <= 7 * 24 * 60 * 60 * 1000;
+    case "1m":
+      return now.getTime() - date.getTime() <= 30 * 24 * 60 * 60 * 1000;
+    case "1y":
+      return now.getTime() - date.getTime() <= 365 * 24 * 60 * 60 * 1000;
+    case "ytd":
+      return date >= yearStart;
+    default:
+      return true;
+  }
+}
+
+const filteredTransactions = computed(() =>
+  transactionStore.transactions.filter((tx) => isDateInRange(tx.date))
+);
 
 // 💸 Investi (prix d'achat)
 const investedTotal = computed(() => {
-  return transactionStore.transactions
+  return filteredTransactions.value
     .reduce((acc, tx) => acc + tx.quantity * tx.price, 0)
     .toFixed(2);
 });
 
 const investedCrypto = computed(() => {
-  return transactionStore.transactions
+  return filteredTransactions.value
     .filter((tx) => tx.category === "crypto")
     .reduce((acc, tx) => acc + tx.quantity * tx.price, 0)
     .toFixed(2);
 });
 
 const investedStock = computed(() => {
-  return transactionStore.transactions
+  return filteredTransactions.value
     .filter((tx) => tx.category === "stock")
     .reduce((acc, tx) => acc + tx.quantity * tx.price, 0)
     .toFixed(2);
@@ -148,7 +176,7 @@ const investedStock = computed(() => {
 
 // 🔄 Valeur actuelle (prix temps réel)
 const total = computed(() => {
-  return transactionStore.transactions
+  return filteredTransactions.value
     .reduce((acc, tx) => {
       const asset = assetStore.assets.find((a) => a.symbol === tx.asset);
       const price = asset ? assetStore.prices[asset.id] ?? tx.price : tx.price;
@@ -158,7 +186,7 @@ const total = computed(() => {
 });
 
 const totalCrypto = computed(() => {
-  return transactionStore.transactions
+  return filteredTransactions.value
     .filter((tx) => tx.category === "crypto")
     .reduce((acc, tx) => {
       const asset = assetStore.assets.find((a) => a.symbol === tx.asset);
@@ -169,7 +197,7 @@ const totalCrypto = computed(() => {
 });
 
 const totalStock = computed(() => {
-  return transactionStore.transactions
+  return filteredTransactions.value
     .filter((tx) => tx.category === "stock")
     .reduce((acc, tx) => {
       const asset = assetStore.assets.find((a) => a.symbol === tx.asset);
